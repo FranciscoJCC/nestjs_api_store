@@ -16,6 +16,12 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('/tasks')
+  @HttpCode(HttpStatus.ACCEPTED)
+  getTasks(){
+    return this.usersService.getTasks();
+  }
+
   @Get('/:id')
   @HttpCode(HttpStatus.ACCEPTED)
   getOne(@Param('id', ParseIntPipe) id: number){
