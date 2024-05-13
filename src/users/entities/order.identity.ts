@@ -1,3 +1,4 @@
+import { PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
 import { Product } from "src/products/entities/product.entity";
 import { User } from "./user.entity";
 
