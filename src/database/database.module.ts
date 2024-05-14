@@ -30,7 +30,9 @@ const API_KEY_PROD = "prod-12343433232";
           port: portPostgres,
           username: userPostgres,
           password: passwordPostgres,
-          database: dbPostgres
+          database: dbPostgres,
+          synchronize: true, //solo en entorno dev
+          autoLoadEntities: true, //sincroniza entidades
         };
       },
     })

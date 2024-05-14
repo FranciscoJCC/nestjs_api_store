@@ -39,8 +39,6 @@ export class ProductsController {
       return this.productsService.findOne(id);
     }
 
-
-
     @Post('/')
     create(@Body() payload: CreateProductDto){
       return this.productsService.create(payload);

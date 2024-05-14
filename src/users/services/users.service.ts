@@ -75,13 +75,13 @@ export class UsersService {
     return { message: "user deleted"};
   }
 
-  getOrdersByUser(id: number): Order{
+  async getOrdersByUser(id: number){
     const user = this.findOne(id);
 
     return {
       date: new Date(),
       user,
-      products: this.productService.findAll()
+      products: await this.productService.findAll()
     }
   }
 
