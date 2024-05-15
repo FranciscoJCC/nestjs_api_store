@@ -22,10 +22,10 @@ const API_KEY_PROD = "prod-12343433232";
           database,
           password,
           port
-        } = configService.mysql;
+        } = configService.postgres;
 
         return {
-          type: 'mysql', //postgress
+          type: 'postgres', //mysql
           host,
           port,
           username: user,
@@ -51,7 +51,7 @@ const API_KEY_PROD = "prod-12343433232";
           database,
           password,
           port
-        } = configService.mysql;
+        } = configService.postgres;
 
         //Configuracion de la base de datos
         const client = new Client({
