@@ -17,20 +17,20 @@ const API_KEY_PROD = "prod-12343433232";
       inject: [config.KEY],
       useFactory:(configService: ConfigType<typeof config>) => {
         const {
-          userPostgres,
-          hostPostgres,
-          dbPostgres,
-          passwordPostgres,
-          portPostgres
-        } = configService.postgres;
+          user,
+          host,
+          database,
+          password,
+          port
+        } = configService.mysql;
 
         return {
-          type: 'postgres',
-          host: hostPostgres,
-          port: portPostgres,
-          username: userPostgres,
-          password: passwordPostgres,
-          database: dbPostgres,
+          type: 'mysql', //postgress
+          host,
+          port,
+          username: user,
+          password,
+          database,
           synchronize: true, //solo en entorno dev
           autoLoadEntities: true, //sincroniza entidades
         };
@@ -46,20 +46,20 @@ const API_KEY_PROD = "prod-12343433232";
       provide: 'PG',
       useFactory:(configService: ConfigType<typeof config>) => {
         const {
-          userPostgres,
-          hostPostgres,
-          dbPostgres,
-          passwordPostgres,
-          portPostgres
-        } = configService.postgres;
+          user,
+          host,
+          database,
+          password,
+          port
+        } = configService.mysql;
 
         //Configuracion de la base de datos
         const client = new Client({
-          user: userPostgres,
-          host: hostPostgres,
-          database: dbPostgres,
-          password: passwordPostgres,
-          port: portPostgres
+          user,
+          host,
+          database,
+          password,
+          port
         });
 
         //Conectamos a la bdd
