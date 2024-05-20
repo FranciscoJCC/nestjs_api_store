@@ -6,12 +6,12 @@ import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
 export class CustomersService {
   private counterId = 1;
   private customers: Customer[] = [
-    {
+    /* {
       id: 1,
       name: "Francisco",
       lastname: "Cervantes",
       phone: "3352585247"
-    }
+    } */
   ];
 
   findAll(){
@@ -36,7 +36,7 @@ export class CustomersService {
       ...payload
     };
 
-    this.customers.push(newCustomer);
+    //this.customers.push(newCustomer);
 
     return newCustomer;
   }

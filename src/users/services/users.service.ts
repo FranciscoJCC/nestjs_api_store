@@ -1,35 +1,26 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { User } from '../entities/user.entity';
-import { Order } from '../entities/order.identity';
 import { CreateUserDto, UpdateUserDto } from '../dtos/users.dto';
-import { ProductsService } from 'src/products/services/products.service';
-import { Client } from 'pg';
+
+
+//import { Client } from 'pg';
 
 @Injectable()
 export class UsersService {
 
-  constructor(
-    private productService: ProductsService,
-    //Conexion a postgress
-    @Inject('PG') private clientPg: Client
-  ){}
+  constructor(@InjectRepository(User) private userRepo: Repository<User>){
 
-  private counterId = 1;
-  private users: User[] = [
-    {
-      id: 1,
-      email: "francisco@gmail.com",
-      password: "admin123",
-      role: 'admin'
-    }
-  ];
-
-  findAll(){
-    return this.users;
   }
 
-  findOne(id){
-    const user = this.users.find((item) => item.id === id);
+  async findAll(){
+    return this.userRepo.find();
+  }
+
+  async findOne(id){
+    const user = await this.userRepo.findOneBy({ id });
 
     if(!user){
       throw new NotFoundException('user not found');
@@ -38,44 +29,30 @@ export class UsersService {
     return user;
   }
 
-  create(payload: CreateUserDto){
-    this.counterId ++;
+  async create(data: CreateUserDto){
 
-    const newUser = {
-      id: this.counterId,
-      ...payload
-    };
+    const newUser = await this.userRepo.create(data);
 
-    this.users.push(newUser);
-
-    return newUser;
+    return this.userRepo.save(newUser);
   }
 
-  update(id: number, payload: UpdateUserDto){
-    const user = this.findOne(id);
+  async update(id: number, changes: UpdateUserDto){
 
-    const index = this.users.findIndex((item) => item.id === id);
+    const user = await this.findOne(id);
 
-    this.users[index] = {
-      ...user,
-      ...payload,
-      id
-    };
+    this.userRepo.merge(user, changes);
 
-    return this.users[index];
+    return this.userRepo.save(user);
   }
 
-  delete(id: number){
-    const user = this.findOne(id);
+  async delete(id: number){
+    const user = await this.findOne(id);
 
-    const index = this.users.indexOf(user);
-
-    this.users.splice(index,1);
-
-    return { message: "user deleted"};
+    return this.userRepo.delete(id);
   }
 
-  async getOrdersByUser(id: number){
+  /* async getOrdersByUser(id: number){
+
     const user = this.findOne(id);
 
     return {
@@ -83,10 +60,10 @@ export class UsersService {
       user,
       products: await this.productService.findAll()
     }
-  }
+  } */
 
   //Prueba
-  getTasks(){
+  /* getTasks(){
     return new Promise((resolve,reject) => {
       this.clientPg.query('SELECT * FROM tasks', (err, res) => {
 
@@ -98,5 +75,5 @@ export class UsersService {
       });
     });
 
-  }
+  } */
 }

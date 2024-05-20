@@ -19,7 +19,7 @@ export class UsersController {
   @Get('/tasks')
   @HttpCode(HttpStatus.ACCEPTED)
   getTasks(){
-    return this.usersService.getTasks();
+    //return this.usersService.getTasks();
   }
 
   @Get('/:id')
@@ -31,7 +31,7 @@ export class UsersController {
   @Get('/:id/orders')
   @HttpCode(HttpStatus.ACCEPTED)
   getOrders(@Param('id', ParseIntPipe) id: number){
-    return this.usersService.getOrdersByUser(id);
+    //return this.usersService.getOrdersByUser(id);
   }
 
   @Post('/')
