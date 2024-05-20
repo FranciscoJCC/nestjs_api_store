@@ -5,22 +5,31 @@ import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dtos/users.dto';
 
+import { CustomersService } from './customers.service';
+
 
 //import { Client } from 'pg';
 
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectRepository(User) private userRepo: Repository<User>){
-
+  constructor(
+    @InjectRepository(User) private userRepo: Repository<User>,
+    private customerService: CustomersService
+  ){
   }
 
   async findAll(){
-    return this.userRepo.find();
+    return await this.userRepo.find({
+      relations: ['customer'],
+    });
   }
 
-  async findOne(id){
-    const user = await this.userRepo.findOneBy({ id });
+  async findOne(id: number){
+    const user = await this.userRepo.findOne({
+      where: [{id: id}],
+      relations: ['customer'],
+    });
 
     if(!user){
       throw new NotFoundException('user not found');
@@ -32,6 +41,13 @@ export class UsersService {
   async create(data: CreateUserDto){
 
     const newUser = await this.userRepo.create(data);
+
+    if(data.customerId){
+      //Ya hace validación
+      const customer = await this.customerService.findOne(data.customerId);
+      //Le agregamos el customer
+      newUser.customer = customer;
+    }
 
     return this.userRepo.save(newUser);
   }

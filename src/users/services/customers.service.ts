@@ -1,25 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { Customer } from '../entities/customer.entity';
 import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
 
+
 @Injectable()
 export class CustomersService {
-  private counterId = 1;
-  private customers: Customer[] = [
-    /* {
-      id: 1,
-      name: "Francisco",
-      lastname: "Cervantes",
-      phone: "3352585247"
-    } */
-  ];
 
-  findAll(){
-    return this.customers;
+  constructor(
+    @InjectRepository(Customer) private customerRepo: Repository<Customer>
+  ){}
+
+  async findAll(){
+    return await this.customerRepo.find();
   }
 
-  findOne(id: number){
-    const customer = this.customers.find((item) => item.id === id);
+  async findOne(id: number){
+    const customer = this.customerRepo.findOneBy({ id });
 
     if(!customer){
       throw new NotFoundException('customer not found');
@@ -28,39 +27,25 @@ export class CustomersService {
     return customer;
   }
 
-  create(payload: CreateCustomerDto){
-    this.counterId++;
+  async create(data: CreateCustomerDto){
 
-    const newCustomer = {
-      id: this.counterId,
-      ...payload
-    };
+    const newCustomer = await this.customerRepo.create(data);
 
-    //this.customers.push(newCustomer);
-
-    return newCustomer;
+    return this.customerRepo.save(newCustomer);
   }
 
-  update(id: number, payload: UpdateCustomerDto){
-    const user = this.findOne(id);
-    const index = this.customers.findIndex((item) => item.id === id);
+  async update(id: number, changes: UpdateCustomerDto){
 
-    this.customers[index] = {
-      ...user,
-      ...payload,
-      id
-    };
+    const customer = await this.findOne(id);
 
-    return this.customers[index];
+    this.customerRepo.merge(customer, changes);
+
+    return this.customerRepo.save(customer);
   }
 
-  delete(id: number){
-    const customer = this.findOne(id);
+  async delete(id: number){
+    const customer = await this.findOne(id);
 
-    const index = this.customers.indexOf(customer);
-
-    this.customers.splice(index, 1);
-
-    return { message: "customer deleted" };
+    return this.customerRepo.delete(id);
   }
 }
