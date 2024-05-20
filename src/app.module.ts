@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
 
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -11,6 +13,8 @@ import { DatabaseModule } from './database/database.module';
 import { enviroments } from 'enviroments';
 import config from 'config';
 import configSchema from 'configSchema';
+/* import typeorm from '../typeorm.config'; */
+
 
 @Module({
   imports: [
@@ -19,11 +23,23 @@ import configSchema from 'configSchema';
     HttpModule,
     DatabaseModule,
     ConfigModule.forRoot({
-      envFilePath: enviroments[process.env.NODE_ENV ] || '.env',
-      load: [ config ],
+      envFilePath: enviroments[process.env.NODE_ENV ] || '.env.dev',
+      load: [ config ], //typeorm
       isGlobal: true,
       validationSchema: configSchema
-    })
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('POSTGRES_HOST'),
+        port: configService.get('POSTGRES_PORT'),
+        username: configService.get('POSTGRES_USER'),
+        password: configService.get('POSTGRES_PASSWORD'),
+        database: configService.get('POSTGRES_DB'),
+      }),
+      inject: [ConfigService]
+    }),
   ],
   controllers: [AppController],
   providers: [

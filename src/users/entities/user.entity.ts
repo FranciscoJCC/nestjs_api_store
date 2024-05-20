@@ -6,6 +6,7 @@ export enum UserRole {
   EMPLOYE = 'employe'
 }
 
+@Entity('user')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
