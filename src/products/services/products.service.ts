@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -28,19 +28,30 @@ export class ProductsService {
 
   }
 
-   create(data: CreateProductDto){
+  async findByName(name: string){
+    const product = await this.productRepo.findOneBy({ name});
+
+    return product
+  }
+
+  async create(data: CreateProductDto){
+
+    //Verificamos que no exista el producto
+    const findProduct = await this.findByName(data.name);
 
     //Creamos la instancia
-    const newProduct = this.productRepo.create(data);
+    try {
+      if(!findProduct){
+        const newProduct = await this.productRepo.create(data);
 
-    //Creamos el producto
-    /* newProduct.name = data.name;
-    newProduct.description = data.description;
-    newProduct.price = data.price;
-    newProduct.stock = data.stock;
-    newProduct.image = data.image; */
-    //Guardamos el producto y lo retornamos
-    return this.productRepo.save(newProduct);
+        return this.productRepo.save(newProduct);
+      }else{
+        throw new BadRequestException('No se ha encontrado el producto');
+      }
+    } catch (error) {
+      throw new BadRequestException('Ha ocurrido un error, intenta de nuevo');
+    }
+
   }
 
  async update(id: number, changes: UpdateProductDto){
