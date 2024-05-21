@@ -1,26 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { Brand } from '../entities/brand.entity';
 import { CreateBrandDto, UpdateBrandDto } from '../dtos/brands.dto';
 
 @Injectable()
 export class BrandsService {
-  private counterId = 1;
 
-  private brands: Brand[] = [
-    {
-      id: 1,
-      name: "Adidas",
-      image: "www.google.com"
-    }
-  ];
+  constructor(
+    @InjectRepository(Brand) private brandRepo: Repository<Brand>
+  ){}
 
-
-  findAll(){
-    return this.brands;
+  async findAll(){
+    return this.brandRepo.find();
   }
 
-  findOne(id){
-    const brand = this.brands.find((item) => item.id === id);
+  async findOne(id){
+    const brand = await this.brandRepo.findOne({
+      where: [ { id: id }],
+      relations: ['products']
+    });
 
     if(!brand){
       throw new NotFoundException('brand not found');
@@ -29,40 +29,27 @@ export class BrandsService {
     return brand;
   }
 
-  create(payload: CreateBrandDto){
-    this.counterId++;
+  async create(data: CreateBrandDto){
 
-    const newBrand = {
-      id: this.counterId,
-      ...payload
-    };
+    const newBrand = await this.brandRepo.create(data);
 
-    this.brands.push(newBrand);
-
-    return newBrand;
+    return this.brandRepo.save(newBrand);
   }
 
-  update(id: number, payload: UpdateBrandDto){
-    const brand = this.findOne(id);
+  async update(id: number, changes: UpdateBrandDto){
 
-    const index = this.brands.findIndex((item) => item.id === id);
+    const brand = await this.findOne(id);
 
-    this.brands[index] = {
-      ...brand,
-      ...payload
-    };
+    this.brandRepo.merge(brand, changes);
 
-    return this.brands[index];
+    return this.brandRepo.save(brand);
   }
 
-  delete(id: number){
-    const brand = this.findOne(id);
+  async delete(id: number){
 
-    const index = this.brands.indexOf(brand);
+    const brand = await this.findOne(id);
 
-    this.brands.splice(index, 1);
-
-    return { message: "brand deleted"};
+    return this.brandRepo.delete(id);
   }
 
 }

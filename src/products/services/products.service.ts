@@ -5,19 +5,27 @@ import { Repository } from 'typeorm';
 import { Product } from '../entities/product.entity';
 import { CreateProductDto, UpdateProductDto } from "../dtos/products.dto";
 
+import { BrandsService } from './brands.service';
+
 @Injectable()
 export class ProductsService {
 
-  constructor(@InjectRepository(Product) private productRepo: Repository<Product>){
-
-  }
+  constructor(
+    @InjectRepository(Product) private productRepo: Repository<Product>,
+    private brandService: BrandsService
+  ){}
 
   findAll() {
-    return this.productRepo.find();
+    return this.productRepo.find({
+      relations: ['brand']
+    });
   }
 
   async findOne(id: number){
-    const product = await this.productRepo.findOneBy({ id });
+    const product = await this.productRepo.findOne({
+      where: [{ id }],
+      relations: ['brand']
+    });
 
     if(!product){
       throw new NotFoundException('product not found');
@@ -34,28 +42,35 @@ export class ProductsService {
   }
 
   async create(data: CreateProductDto){
-
-    //Verificamos que no exista el producto
-    const findProduct = await this.findByName(data.name);
-
-    //Creamos la instancia
     try {
-      if(!findProduct){
-        const newProduct = await this.productRepo.create(data);
 
-        return this.productRepo.save(newProduct);
-      }else{
-        throw new BadRequestException('No se ha encontrado el producto');
+      if(this.findByName(data.name)){
+        throw new BadRequestException('Product is already exists');
       }
-    } catch (error) {
-      throw new BadRequestException('Ha ocurrido un error, intenta de nuevo');
-    }
 
+      const newProduct = await this.productRepo.create(data);
+
+      if(data.brandId){
+        const brand = await this.brandService.findOne(data.brandId);
+        newProduct.brand = brand;
+      }
+
+      return this.productRepo.save(newProduct);
+
+    } catch (error) {
+      throw new BadRequestException(`${error.message || 'Unexpected Error'}`);
+    }
   }
 
  async update(id: number, changes: UpdateProductDto){
     //Buscamos el recurso
     const product = await this.productRepo.findOne({ where: { id }});
+
+    if(changes.brandId){
+      const brand = await this.brandService.findOne(changes.brandId);
+
+      product.brand = brand;
+    }
     //Convinamos los cambios
     this.productRepo.merge(product, changes);
     //Guardamos los cambios y retornamos el recurso
