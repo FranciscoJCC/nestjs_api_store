@@ -1,22 +1,24 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { Product } from '../entities/product.entity';
 import { CreateProductDto, UpdateProductDto } from "../dtos/products.dto";
 
-import { BrandsService } from './brands.service';
+import { Category } from '../entities/category.entity';
+import { Brand } from '../entities/brand.entity';
 
 @Injectable()
 export class ProductsService {
 
   constructor(
     @InjectRepository(Product) private productRepo: Repository<Product>,
-    private brandService: BrandsService
+    @InjectRepository(Brand) private brandRepo: Repository<Brand>,
+    @InjectRepository(Category) private categoryRepo: Repository<Category>,
   ){}
 
-  findAll() {
-    return this.productRepo.find({
+  async findAll() {
+    return await this.productRepo.find({
       relations: ['brand']
     });
   }
@@ -24,7 +26,7 @@ export class ProductsService {
   async findOne(id: number){
     const product = await this.productRepo.findOne({
       where: [{ id }],
-      relations: ['brand']
+      relations: ['brand', 'categories']
     });
 
     if(!product){
@@ -44,15 +46,22 @@ export class ProductsService {
   async create(data: CreateProductDto){
     try {
 
-      if(this.findByName(data.name)){
+      if(await this.findByName(data.name)){
         throw new BadRequestException('Product is already exists');
       }
 
       const newProduct = await this.productRepo.create(data);
 
+      /* Insertamos la marca */
       if(data.brandId){
-        const brand = await this.brandService.findOne(data.brandId);
+        const brand = await this.brandRepo.findOneBy({ id : data.brandId});
         newProduct.brand = brand;
+      }
+
+      /* Insertamos las categorias */
+      if(data.categoriesIds){
+        const categories = await this.categoryRepo.findBy({id : In(data.categoriesIds)});
+        newProduct.categories = categories;
       }
 
       return this.productRepo.save(newProduct);
@@ -67,13 +76,52 @@ export class ProductsService {
     const product = await this.productRepo.findOne({ where: { id }});
 
     if(changes.brandId){
-      const brand = await this.brandService.findOne(changes.brandId);
+      const brand = await this.brandRepo.findOneBy({id: changes.brandId});
 
       product.brand = brand;
     }
     //Convinamos los cambios
     this.productRepo.merge(product, changes);
     //Guardamos los cambios y retornamos el recurso
+    return this.productRepo.save(product);
+  }
+
+
+  async removeCategoryByProduct(productId: number, categoryId: number){
+    const product = await this.productRepo.findOne({
+      where: [ { id: productId} ],
+      relations: ['categories']
+    });
+
+    product.categories = product.categories.filter((item) => item.id !== categoryId);
+
+    return this.productRepo.save(product);
+  }
+
+  async addCategoryByProduct(productId: number, categoryId: number){
+    //Buscamos el producto
+    const product = await this.productRepo.findOne({
+      where: [{ id : productId }],
+      relations: ['categories']
+    });
+
+    if(!product){
+      throw new BadRequestException('Product ID is not exists');
+    }
+
+    //Buscamos la categoria
+    const category = await this.categoryRepo.findOneBy({ id: categoryId});
+
+    //Si no existe la categoria
+    if(!category){
+      throw new BadRequestException('Category ID is not exists');
+    }
+
+    //Buscamos si no exista ya la categoria en el producto, si no existe la agregamos
+    if(!product.categories.find((item) => item.id === categoryId)){
+      product.categories.push(category);
+    }
+
     return this.productRepo.save(product);
   }
 

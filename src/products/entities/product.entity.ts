@@ -1,5 +1,15 @@
-import { PrimaryGeneratedColumn, Column, Entity, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  ManyToMany,
+  JoinTable
+} from 'typeorm';
 import { Brand } from './brand.entity';
+import { Category } from './category.entity';
 
 @Entity('product')
 export class Product {
@@ -36,5 +46,10 @@ export class Product {
   /* Muchos productos pertenecen a una marca */
   @ManyToOne(() => Brand, (brand) => brand.products)
   brand: Brand
+
+  /* Un producto tiene muchas categorias */
+  @ManyToMany(() => Category, (category) => category.products)
+  @JoinTable() //Solo debe ir en un lado de la relacion
+  categories: Category[];
 
 }

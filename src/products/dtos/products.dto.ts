@@ -1,7 +1,7 @@
 /*
   DTO => Data transfers Objects
 */
-import { IsString, IsNumber, IsUrl, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsString, IsNumber, IsUrl, IsNotEmpty, IsPositive, IsArray, ArrayNotEmpty } from 'class-validator';
 import { ApiProperty, PartialType } from "@nestjs/swagger";
 
 export class CreateProductDto {
@@ -37,6 +37,11 @@ export class CreateProductDto {
   @IsNotEmpty()
   @ApiProperty()
   readonly brandId: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ApiProperty()
+  readonly categoriesIds: number[];
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto){}
