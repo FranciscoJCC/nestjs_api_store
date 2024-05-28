@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { CustomersService } from '../services/customers.service';
-import { CreateCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
+import { CreateCustomerDto, FilterCustomerDto, UpdateCustomerDto } from '../dtos/customers.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Customers')
@@ -10,8 +10,8 @@ export class CustomersController {
 
   @Get('/')
   @HttpCode(HttpStatus.ACCEPTED)
-  get(){
-    return this.customerService.findAll();
+  get(@Query() params: FilterCustomerDto){
+    return this.customerService.findAll(params);
   }
 
   @Get('/:id')

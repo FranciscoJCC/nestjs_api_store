@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsUrl } from "class-validator";
+import { IsNotEmpty, IsOptional, IsPositive, IsString, IsUrl, Min } from "class-validator";
 
 export class CreateBrandDto {
   @IsString()
@@ -12,4 +12,15 @@ export class CreateBrandDto {
 }
 
 export class UpdateBrandDto extends PartialType(CreateBrandDto){}
+
+export class FilterBrandDto {
+  @IsOptional()
+  @IsPositive()
+  limit: number;
+
+  @IsOptional()
+  @Min(0)
+  offset: number;
+}
+
 

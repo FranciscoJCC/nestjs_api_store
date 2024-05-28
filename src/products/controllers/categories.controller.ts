@@ -1,6 +1,6 @@
 import { Controller, Param, Query, Get, HttpCode, HttpStatus, ParseIntPipe, Post, Body, Put, Delete } from '@nestjs/common';
 import { CategoriesService } from '../services/categories.service';
-import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/categories.dto';
+import { CreateCategoryDto, FilterCategoryDto, UpdateCategoryDto } from '../dtos/categories.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Categories')
@@ -14,11 +14,8 @@ export class CategoriesController {
 
   @Get('/')
   @HttpCode(HttpStatus.ACCEPTED)
-  get(
-    @Query('limit') limit: number = 10,
-    @Query('offset') offset: number = 0,
-  ){
-    return this.categoriesService.findAll();
+  get(@Query() params: FilterCategoryDto){
+    return this.categoriesService.findAll(params);
   }
 
   @Get('/:id')

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Category } from '../entities/category.entity';
-import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/categories.dto';
+import { CreateCategoryDto, FilterCategoryDto, UpdateCategoryDto } from '../dtos/categories.dto';
 
 
 
@@ -14,8 +14,14 @@ export class CategoriesService {
     @InjectRepository(Category) private categoryRepo:Repository<Category>
   ){}
 
-  async findAll(){
-    return await this.categoryRepo.find();
+  async findAll(params?: FilterCategoryDto){
+
+    const { limit, offset } = params;
+
+    return await this.categoryRepo.find({
+      take: limit,
+      skip: offset
+    });
   }
 
   async findOne(id: number){

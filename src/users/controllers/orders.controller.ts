@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { OrdersService } from '../services/orders.service';
-import { CreateOrderDto, UpdateOrderDto } from '../dtos/orders.dto';
+import { CreateOrderDto, FilterOrderDto, UpdateOrderDto } from '../dtos/orders.dto';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -10,8 +10,8 @@ export class OrdersController {
 
   @Get('/')
   @HttpCode(HttpStatus.ACCEPTED)
-  get(){
-    return this.orderService.findAll()
+  get(@Query() params : FilterOrderDto){
+    return this.orderService.findAll(params);
   }
 
   @Get('/:id')

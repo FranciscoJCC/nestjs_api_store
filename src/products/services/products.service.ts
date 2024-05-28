@@ -28,7 +28,7 @@ export class ProductsService {
       });
     }
 
-
+    //Sin pagincación
     return await this.productRepo.find({
       relations: ['brand']
     });

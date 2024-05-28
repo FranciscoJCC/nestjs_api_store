@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { BrandsService } from '../services/brands.service';
-import { CreateBrandDto, UpdateBrandDto } from '../dtos/brands.dto';
+import { CreateBrandDto, FilterBrandDto, UpdateBrandDto } from '../dtos/brands.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Brands')
@@ -13,8 +13,8 @@ export class BrandsController {
 
   @Get('/')
   @HttpCode(HttpStatus.ACCEPTED)
-  get(){
-    return this.brandsService.findAll();
+  get(@Query() params: FilterBrandDto){
+    return this.brandsService.findAll(params);
   }
 
   @Get('/:id')

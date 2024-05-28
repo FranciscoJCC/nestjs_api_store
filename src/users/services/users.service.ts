@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from '../dtos/users.dto';
+import { CreateUserDto, FilterUserDto, UpdateUserDto } from '../dtos/users.dto';
 
 import { CustomersService } from './customers.service';
 
@@ -19,9 +19,14 @@ export class UsersService {
   ){
   }
 
-  async findAll(){
+  async findAll(params?: FilterUserDto){
+
+    const {limit, offset} = params;
+
     return await this.userRepo.find({
       relations: ['customer'],
+      take: limit,
+      skip: offset
     });
   }
 
