@@ -1,7 +1,7 @@
 /*
   DTO => Data transfers Objects
 */
-import { IsString, IsNumber, IsUrl, IsNotEmpty, IsPositive, IsArray, ArrayNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsUrl, IsNotEmpty, IsPositive, IsArray, ArrayNotEmpty, IsOptional, Min, ValidateIf } from 'class-validator';
 import { ApiProperty, PartialType } from "@nestjs/swagger";
 
 export class CreateProductDto {
@@ -56,4 +56,13 @@ export class FilterProductDto {
   @Min(0)
   @ApiProperty()
   offset: number;
+
+  @IsOptional()
+  @IsPositive()
+  minPrice: number;
+
+  //Valida que cuando canden maxPrice, debe existir minPrice
+  @ValidateIf((item) => item.minPrice)
+  @IsPositive()
+  maxPrice: number;
 }

@@ -28,9 +28,11 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {}
 export class FilterUserDto {
   @IsOptional()
   @IsPositive()
+  @ApiProperty()
   limit: number;
 
   @IsOptional()
   @Min(0)
+  @ApiProperty()
   offset: number;
 }
