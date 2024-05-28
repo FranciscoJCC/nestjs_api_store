@@ -15,9 +15,11 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto){}
 export class FilterOrderDto {
   @IsOptional()
   @IsPositive()
+  @ApiProperty()
   limit: number;
 
   @IsOptional()
   @Min(0)
+  @ApiProperty()
   offset: number;
 }
