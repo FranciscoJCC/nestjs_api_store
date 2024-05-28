@@ -20,7 +20,7 @@ export class OrderItem {
   quantity: number;
 
   @Column({ type: 'float'})
-  price_unit: number
+  priceUnit: number
 
   @CreateDateColumn({
     type: 'timestamptz',
