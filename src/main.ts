@@ -9,7 +9,10 @@ async function bootstrap() {
   //Pipe, para validar inputs en las peticiones con los dtos
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true, //Quita elementos del payload cuando no se define en el dto
-    forbidNonWhitelisted: true //Alertamos del error, cuando se agregue información no deseada al payload
+    forbidNonWhitelisted: true, //Alertamos del error, cuando se agregue información no deseada al payload
+    transformOptions: {
+      enableImplicitConversion: true //Conversión de tipos de datos en los request, de forma implicita
+    }
   }));
 
   //Documentation of swagger
