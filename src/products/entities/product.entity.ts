@@ -7,12 +7,13 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  Index
+  Index,
+  JoinColumn
 } from 'typeorm';
 import { Brand } from './brand.entity';
 import { Category } from './category.entity';
 
-@Entity('product')
+@Entity({name: 'products'})
 @Index(['price', 'stock'])
 export class Product {
   @PrimaryGeneratedColumn()
@@ -34,12 +35,14 @@ export class Product {
   image?: string
 
   @CreateDateColumn({
+    name: 'create_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
 
   @UpdateDateColumn({
+    name: 'update_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
@@ -47,11 +50,20 @@ export class Product {
 
   /* Muchos productos pertenecen a una marca */
   @ManyToOne(() => Brand, (brand) => brand.products)
+  @JoinColumn({ name: 'brand_id'})
   brand: Brand
 
   /* Un producto tiene muchas categorias */
   @ManyToMany(() => Category, (category) => category.products)
-  @JoinTable() //Solo debe ir en un lado de la relacion
+  @JoinTable({
+    name: 'products_categories', //tabla
+    joinColumn: {
+      name: 'product_id'
+    },
+    inverseJoinColumn: {
+      name: 'category_id'
+    }
+  }) //Solo debe ir en un lado de la relacion
   categories: Category[];
 
 }

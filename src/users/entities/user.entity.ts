@@ -7,7 +7,7 @@ export enum UserRole {
   EMPLOYE = 'employe'
 }
 
-@Entity('user')
+@Entity({ name: 'users'})
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -22,18 +22,20 @@ export class User {
   role: string;
 
   @CreateDateColumn({
+    name: 'create_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
 
   @UpdateDateColumn({
+    name: 'update_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   updateAt: Date;
 
   @OneToOne(() => Customer,(customer) => customer.user, { nullable: true })
-  @JoinColumn() //Carga la relacion 1:1 con este decorador
+  @JoinColumn({ name: 'customer_id'}) //Carga la relacion 1:1 con este decorador
   customer: Customer
 }

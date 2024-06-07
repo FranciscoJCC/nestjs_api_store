@@ -4,25 +4,28 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany
+  OneToMany,
+  JoinColumn
 } from 'typeorm';
 
 import { Customer } from './customer.entity';
 import { OrderItem } from './orderItem.entity';
 
-@Entity('order')
+@Entity({name: 'orders'})
 export class Order {
 
   @PrimaryGeneratedColumn()
   id: number;
 
   @CreateDateColumn({
+    name: 'create_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP'
   })
   createAt: Date;
 
   @UpdateDateColumn({
+    name: 'update_at',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
@@ -30,6 +33,7 @@ export class Order {
 
   //Muchas ordenes pertenecen a un cliente
   @ManyToOne(() => Customer, (customer) => customer.orders)
+  @JoinColumn({ name: 'customer_id'})
   customer: Customer;
 
   //Una orden tiene varios detalles de la orden
