@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm';
-
+import { Exclude } from 'class-transformer';
 import { Product } from '../../products/entities/product.entity';
 import { Order } from './order.entity';
 
@@ -23,6 +23,7 @@ export class OrderItem {
   @Column({ name: 'price_unit', type: 'float'})
   priceUnit: number
 
+  @Exclude()
   @CreateDateColumn({
     name: 'create_at',
     type: 'timestamptz',
@@ -30,6 +31,7 @@ export class OrderItem {
   })
   createAt: Date;
 
+  @Exclude()
   @UpdateDateColumn({
     name: 'update_at',
     type: 'timestamptz',
@@ -46,4 +48,5 @@ export class OrderItem {
   @ManyToOne(() => Order, (order) => order.items)
   @JoinColumn({ name: 'order_id'})
   order: Order;
+
 }
